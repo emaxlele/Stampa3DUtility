@@ -131,11 +131,8 @@ input,select{
 <div id="rulesBox" class="break" style="display:none">
 REGOLAMENTO DI UTILIZZO – SERVIZIO DI STAMPA 3D
 
-Il prezzo è calcolato automaticamente in base a:
-- materiale,
-- tempo macchina (usura stampante 0,30 €/h),
-- tempo lavoro (tariffa base 1 €/h + 0,50 €/h × ore),
-- margine variabile proporzionato al costo totale (piccolo 45%, medio 30%, grande 20%).
+Il prezzo è calcolato automaticamente in base a materiale, tempo di stampa e avviamento della lavorazione.
+Il prezzo visualizzato rappresenta il corrispettivo finale del servizio.
 
 In caso di esito negativo dovuto a errori nel file fornito, i costi già sostenuti restano validi.
 In caso di problemi tecnici imputabili al servizio, la stampa viene ripetuta senza costi aggiuntivi.
@@ -155,27 +152,54 @@ function updateRate(){
 }
 
 function calc(){
-  const grams = +el("grams").value;
-  const ppg = +el("ppg").value / 1000;
-  const hours = +el("hours").value + (+el("minutes").value / 60);
+	const grams = +el("grams").value;
+	const ppg = +el("ppg").value / 1000;
 
-  // Costi materiali
-  const material = grams * ppg;
+	const hoursInput = +el("hours").value;
+	const minutesInput = +el("minutes").value;
 
-  // Usura macchina
-  const machine = hours * 0.30;
+	// ore totali come frazione decimale
+	const hours = hoursInput + minutesInput / 60;
 
-  // Tariffa lavoro
-  const laborRate = 1 + 0.5 * hours;
-  const labor = hours * laborRate;
+	// Costi materiali
+	const material = grams * ppg;
+
+	// Usura macchina
+	let machine;
+	if (hours <= 1) {
+	  machine = 0.30; // costo fisso per la prima ora
+	} else {
+	  machine = 0.30 + (hours - 1) * 0.30; // aggiungi 0.30 per ogni ora extra/frazione
+	}
+
+	// Tariffa lavoro
+	let labor;
+	if (hours <= 1) {
+	  labor = 1; // costo fisso per la prima ora
+	} else {
+	  labor = 1 + (hours - 1) * 0.20; // 0,20 euro per ogni ora extra/frazione
+	}
+
+	console.log("Materiale:", material.toFixed(2), "€");
+	console.log("Macchina:", machine.toFixed(2), "€");
+	console.log("Lavoro:", labor.toFixed(2), "€");
+
 
   // Base totale
   const baseTotal = material + machine + labor;
+	console.log("Totale:", baseTotal.toFixed(2), "€");
 
   // Percentuale margine variabile
-  let pct = 0.2; // default grande
-  if(baseTotal <= 10) pct = 0.45;       // piccolo progetto
-  else if(baseTotal <= 25) pct = 0.30;  // medio progetto
+	let pct = 0.35; // default
+	if(baseTotal <= 3) pct = 0;
+	else if(baseTotal <= 5) pct = 0.15;
+	else if(baseTotal <= 7.5) pct = 0.15;
+	else if(baseTotal <= 10) pct = 0.10;
+	else if(baseTotal <= 15) pct = 0.10;
+	else if(baseTotal <= 20) pct = 0.08;
+	else if(baseTotal <= 25) pct = 0.08;
+	else pct = 0.06; // >25€
+
 
   // Totale finale
   let total = baseTotal * (1 + pct);
