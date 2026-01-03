@@ -159,6 +159,7 @@
       grams: document.getElementById('grams'),
       ppg: document.getElementById('ppg'),
       hours: document.getElementById('hours'),
+      minutes: document.getElementById('minutes'),
       rate: document.getElementById('rate'),
       sell: document.getElementById('sell'),
       failure: document.getElementById('failure'),
@@ -184,6 +185,7 @@
         grams: els.grams.value,
         ppg: els.ppg.value,
         hours: els.hours.value,
+        minutes: els.minutes.value,
         rate: els.rate.value,
         sell: els.sell.value,
         failure: els.failure.value,
@@ -221,11 +223,13 @@
       const g = parseFloat(els.grams.value||'0');
       const ppg = parseFloat(els.ppg.value||'0');
       const h = parseFloat(els.hours.value||'0');
+      const m = parseFloat(els.minutes.value||'0');
       const rate = parseFloat(els.rate.value||'0');
 
       if(isNaN(g) || g < 0) problems.push("Grammi non validi.");
       if(isNaN(ppg) || ppg < 0) problems.push("Prezzo/grammo non valido.");
       if(isNaN(h) || h < 0) problems.push("Ore non valide.");
+      if(isNaN(m) || m < 0 || m > 59) problems.push("Minuti non validi.");
       if(isNaN(rate) || rate < 0) problems.push("Tariffa macchina non valida.");
 
       if(els.cas.value==='A'){
