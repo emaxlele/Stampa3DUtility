@@ -47,12 +47,16 @@ input,select{
 .btn.primary{background:var(--primary);color:#001c32;border:none;font-weight:700}
 .actions{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem}
 .total{font-size:1.3rem;font-weight:800;margin-top:1rem}
-.break{background:#0b1220;border:1px solid var(--border);border-radius:10px;padding:.8rem;margin-top:.8rem;white-space:pre-wrap}
+.break{
+  background:#0b1220;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:.8rem;
+  margin-top:.8rem;
+  white-space:pre-wrap;
+}
 .muted{color:var(--muted);font-size:.9rem}
-.hr{height:1px;background:var(--border);margin:1rem 0}
 .footer{font-size:.85rem;color:var(--muted);margin-top:1rem}
-.bad{color:var(--danger);font-weight:600}
-.ok{color:var(--accent);font-weight:600}
 
 @media print{
   .actions,.footer{display:none}
@@ -92,7 +96,7 @@ input,select{
   </div>
   <div>
     <label>Prezzo bobina €/kg</label>
-    <input id="ppg" type="number" value="25" disabled>
+    <input id="ppg" type="number" value="25">
   </div>
 </div>
 
@@ -110,7 +114,7 @@ input,select{
 <div class="grid">
   <div>
     <label>Tariffa macchina €/h</label>
-    <input id="rate" type="number" value="0.20" disabled>
+    <input id="rate" type="number" disabled>
   </div>
 </div>
 
@@ -122,7 +126,7 @@ input,select{
 <div id="personBox">
   <label>Richiedente <span class="muted">(solo Caso B)</span></label>
   <select id="person">
-    <option value="friend">Amico (+50%)</option>
+    <option value="friend">Amico / conoscente (+50%)</option>
     <option value="stranger">Estraneo (+70%)</option>
   </select>
 </div>
@@ -145,56 +149,63 @@ input,select{
 <div class="break" id="breakdown">Inserisci i dati e premi “Calcola”.</div>
 
 <div class="footer">
-CASO B: compenso calcolato solo come percentuale sui costi vivi, senza minimi fissi.
+CASO B: il compenso è calcolato solo come percentuale sui costi vivi.
 </div>
 
 </div>
-  <div class="actions">
-      <button class="btn ghost" id="rulesBtn">📜 Mostra regolamento</button>
-    </div>
-    
-    <div id="rulesBox" class="break" style="display:none">
-      Prezzi per stampare pezzi 3D con la Bambulab H2C
-      
-      🟢 CASO A: VENDITA (Mercatini / Clienti)
-      Si usa quando l'oggetto viene venduto a terzi.
-      
-      • Materiale:
-        Grammi usati × prezzo di listino
-        (es. 0,03 €/g se la bobina costa 30 €/kg)
-      
-      • Costo macchina:
-        0,20 € per ogni ora di stampa
-      
-      • Calcolo guadagno:
-        Prezzo di vendita − (Materiale + Costo macchina) = Utile
-        A te spetta il 30% dell’utile
-      
-      Totale da darti:
-        Materiale + Costo macchina + tuo 30%
-      
-      🔵 CASO B: REGALI / USO PERSONALE
-      Si usa quando un amico vuole un oggetto per sé o da regalare.
-      
-      • Costi vivi:
-        Materiale a prezzo di listino
-        + 0,20 € per ogni ora di stampa
-      
-      • Tuo fisso:
-        – Stampe “flash”: 1,00 €
-        – Fino a 5 ore: 2,00 €
-        – Ogni 5 ore successive: +1,00 €
-      
-      Totale da darti:
-        Costi vivi + tuo fisso
-      
-      💡 NOTE
-      • Il materiale si paga sempre a prezzo di listino.
-      • Tariffa commerciale: 0,75 €/h.
-      • Fallimenti:
-        – Errore file → costo pieno
-        – Problema tecnico tuo → 25% sul margine
-    </div>
+
+<div class="actions">
+  <button class="btn" id="rulesBtn">📜 Mostra regolamento</button>
+</div>
+
+<div id="rulesBox" class="break" style="display:none">
+
+📜 REGOLAMENTO — STAMPA 3D BAMBU LAB H2C
+
+🟢 CASO A — VENDITA
+Si applica quando l’oggetto viene venduto a terzi.
+
+• Costi base:
+  – Materiale: grammi usati × prezzo bobina al kg
+  – Costo macchina:
+      Hobby → 0,20 €/h
+      Commerciale → 0,75 €/h
+
+• Utile:
+  Prezzo di vendita − (Materiale + Costo macchina)
+
+• Compenso:
+  – 30% dell’utile
+  – 25% dell’utile in caso di problema tecnico imputabile a me
+  – Se l’utile è negativo → compenso 0 €
+
+Totale da darti:
+  Materiale + Costo macchina + Compenso
+
+
+🔵 CASO B — REGALI / USO PERSONALE
+Uso personale, regali, amici o conoscenti.
+
+• Costi vivi:
+  – Materiale a prezzo di listino
+  – Costo macchina (come sopra)
+
+• Compenso servizio:
+  – Amico / conoscente → +50%
+  – Estraneo → +70%
+
+Totale da darti:
+  Costi vivi + Compenso servizio
+
+In CASO B non esistono minimi fissi.
+
+
+⚠️ FALLIMENTI
+• Errore nel file del cliente → costo pieno
+• Problema tecnico mio → riduzione solo in CASO A
+
+</div>
+
 </div>
 
 <script>
@@ -204,6 +215,7 @@ const euro = v => "€ " + v.toFixed(2);
 function updateRate(){
   el("rate").value = el("mode").value === "pro" ? 0.75 : 0.20;
 }
+
 function toggle(){
   const isA = el("case").value === "A";
   el("sellBox").style.display = isA ? "block" : "none";
@@ -236,8 +248,8 @@ function calc(){
       "Costo base": euro(base),
       "Prezzo vendita": euro(sell),
       "Utile": euro(profit),
-      "Quota Emanuele": (pct*100)+"%",
-      "Guadagno": euro(share),
+      "Percentuale": (pct*100)+"%",
+      "Compenso": euro(share),
       "Totale": euro(total)
     };
   } else {
@@ -260,21 +272,29 @@ function calc(){
     Object.entries(out).map(([k,v])=>`${k}: ${v}`).join("\n");
 }
 
-["case","mode"].forEach(id=>el(id).addEventListener("change",()=>{updateRate();toggle();}));
-el("calc").addEventListener("click",calc);
+["case","mode"].forEach(id =>
+  el(id).addEventListener("change", () => {
+    updateRate();
+    toggle();
+  })
+);
+
+el("calc").addEventListener("click", calc);
 
 updateRate();
 toggle();
-  const rulesBtn = document.getElementById('rulesBtn');
-    const rulesBox = document.getElementById('rulesBox');
-    
-    rulesBtn.addEventListener('click', () => {
-      const open = rulesBox.style.display === 'block';
-      rulesBox.style.display = open ? 'none' : 'block';
-      rulesBtn.textContent = open
-        ? '📜 Mostra regolamento'
-        : '❌ Nascondi regolamento';
-    });
+
+const rulesBtn = el("rulesBtn");
+const rulesBox = el("rulesBox");
+
+rulesBtn.addEventListener("click", () => {
+  const open = rulesBox.style.display === "block";
+  rulesBox.style.display = open ? "none" : "block";
+  rulesBtn.textContent = open
+    ? "📜 Mostra regolamento"
+    : "❌ Nascondi regolamento";
+});
 </script>
+
 </body>
 </html>
