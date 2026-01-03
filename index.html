@@ -78,7 +78,7 @@ input,select{
     </select>
   </div>
   <div>
-    <label>Tariffa oraria €/h</label>
+    <label>Tariffa base €/h</label>
     <input id="rate" type="number" disabled>
   </div>
 </div>
@@ -131,8 +131,11 @@ input,select{
 <div id="rulesBox" class="break" style="display:none">
 REGOLAMENTO DI UTILIZZO – SERVIZIO DI STAMPA 3D
 
-Il prezzo è calcolato automaticamente in base a materiale, tempo di stampa e avviamento della lavorazione.
-Il prezzo visualizzato rappresenta il corrispettivo finale del servizio.
+Il prezzo è calcolato automaticamente in base a:
+- materiale,
+- tempo macchina (usura stampante 0,30 €/h),
+- tempo lavoro (tariffa base 1 €/h + 0,50 €/h × ore),
+- margine variabile proporzionato al costo totale (piccolo 45%, medio 30%, grande 20%).
 
 In caso di esito negativo dovuto a errori nel file fornito, i costi già sostenuti restano validi.
 In caso di problemi tecnici imputabili al servizio, la stampa viene ripetuta senza costi aggiuntivi.
@@ -147,30 +150,53 @@ const el = id => document.getElementById(id);
 const euro = v => "€ " + v.toFixed(2);
 
 function updateRate(){
-  el("rate").value = el("mode").value === "pro" ? 1.25 : 0.75;
+  // Tariffa base 1 €/h + 0,5 €/h extra (mostriamo solo base)
+  el("rate").value = el("mode").value === "pro" ? 1 : 1;
 }
 
 function calc(){
   const grams = +el("grams").value;
   const ppg = +el("ppg").value / 1000;
   const hours = +el("hours").value + (+el("minutes").value / 60);
-  const rate = +el("rate").value;
 
+  // Costi materiali
   const material = grams * ppg;
-  const timeCost = hours * rate;
-  let total = material + timeCost;
 
-  const min = el("mode").value === "pro" ? 8 : 5;
-  const appliedMin = total < min ? min : total;
+  // Usura macchina
+  const machine = hours * 0.30;
 
-  el("total").textContent = "Totale: " + euro(appliedMin);
+  // Tariffa lavoro
+  const laborRate = 1 + 0.5 * hours;
+  const labor = hours * laborRate;
+
+  // Base totale
+  const baseTotal = material + machine + labor;
+
+  // Percentuale margine variabile
+  let pct = 0.2; // default grande
+  if(baseTotal <= 10) pct = 0.45;       // piccolo progetto
+  else if(baseTotal <= 25) pct = 0.30;  // medio progetto
+
+  // Totale finale
+  let total = baseTotal * (1 + pct);
+
+  // Gestione esito stampa
+  const failure = el("failure").value;
+  if(failure === "technical"){
+    total = 0; // problema tecnico → gratis
+  } else if(failure === "file"){
+    // errore file cliente → costo pieno
+  }
+
+  el("total").textContent = "Totale: " + euro(total);
 
   el("breakdown").textContent =
     `Materiale: ${euro(material)}
-Tempo di stampa: ${euro(timeCost)}
-Totale calcolato: ${euro(total)}
-Minimo applicato: ${total < min ? euro(min) : "—"}
-Totale finale: ${euro(appliedMin)}`;
+Usura macchina: ${euro(machine)}
+Tempo lavoro: ${euro(labor)}
+Totale base: ${euro(baseTotal)}
+Percentuale margine applicata: ${Math.round(pct*100)}%
+Totale finale: ${euro(total)}`;
 }
 
 el("mode").addEventListener("change", updateRate);
