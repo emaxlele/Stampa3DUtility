@@ -149,6 +149,55 @@
         applichi il <b>25%</b> sul margine, altrimenti <b>30%</b>.
       </div>
     </div>
+
+    <div class="hr"></div>
+
+    <div class="actions">
+      <button class="btn ghost" id="rulesBtn">📜 Mostra regolamento</button>
+    </div>
+    
+    <div id="rulesBox" class="break" style="display:none">
+      Prezzi per stampare pezzi 3D con la Bambulab H2C
+      
+      🟢 CASO A: VENDITA (Mercatini / Clienti)
+      Si usa quando l'oggetto viene venduto a terzi.
+      
+      • Materiale:
+        Grammi usati × prezzo di listino
+        (es. 0,03 €/g se la bobina costa 30 €/kg)
+      
+      • Costo macchina:
+        0,20 € per ogni ora di stampa
+      
+      • Calcolo guadagno:
+        Prezzo di vendita − (Materiale + Costo macchina) = Utile
+        A te spetta il 30% dell’utile
+      
+      Totale da darti:
+        Materiale + Costo macchina + tuo 30%
+      
+      🔵 CASO B: REGALI / USO PERSONALE
+      Si usa quando un amico vuole un oggetto per sé o da regalare.
+      
+      • Costi vivi:
+        Materiale a prezzo di listino
+        + 0,20 € per ogni ora di stampa
+      
+      • Tuo fisso:
+        – Stampe “flash”: 1,00 €
+        – Fino a 5 ore: 2,00 €
+        – Ogni 5 ore successive: +1,00 €
+      
+      Totale da darti:
+        Costi vivi + tuo fisso
+      
+      💡 NOTE
+      • Il materiale si paga sempre a prezzo di listino.
+      • Tariffa commerciale: 0,75 €/h.
+      • Fallimenti:
+        – Errore file → costo pieno
+        – Problema tecnico tuo → 25% sul margine
+    </div>
   </div>
 
   <script>
@@ -323,9 +372,9 @@
 
         // Nota sui fallimenti (policy uguale: costi vivi sempre conteggiati)
         if(failure === 'file'){
-          els.notice.innerHTML = "Fallimento per file difettoso del cliente: <b>materiale e tempo</b> sono conteggiati a costo pieno.";
+          els.notice.innerHTML = "Fallimento per file difettoso del cliente: <b>materiale e tempo</b> verranno conteggiati a costo pieno.";
         }else if(failure === 'technical'){
-          els.notice.innerHTML = "Fallimento tecnico tuo: mantieni <b>costi vivi</b> e il <b>fisso</b> come da policy.";
+          els.notice.innerHTML = "Fallimento tecnico Emanuele: mantiene <b>costi vivi</b> e il <b>fisso</b> come da policy.";
         }else{
           els.notice.textContent = "";
         }
@@ -373,6 +422,17 @@
     applyModeRate();
     toggleCaseFields();
     loadState();
+
+    const rulesBtn = document.getElementById('rulesBtn');
+    const rulesBox = document.getElementById('rulesBox');
+    
+    rulesBtn.addEventListener('click', () => {
+      const open = rulesBox.style.display === 'block';
+      rulesBox.style.display = open ? 'none' : 'block';
+      rulesBtn.textContent = open
+        ? '📜 Mostra regolamento'
+        : '❌ Nascondi regolamento';
+    });
   </script>
 </body>
 </html>
