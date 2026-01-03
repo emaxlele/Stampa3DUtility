@@ -177,7 +177,7 @@ function calc(){
 	if (hours <= 1) {
 	  labor = 1; // costo fisso per la prima ora
 	} else {
-	  labor = 1 + (hours - 1) * 0.20; // 0,20 euro per ogni ora extra/frazione
+	  labor = 1 + (hours - 1) * 0.35; // 0,35 euro per ogni ora extra/frazione
 	}
 
 	console.log("Materiale:", material.toFixed(2), "€");
@@ -194,11 +194,11 @@ function calc(){
 	if(baseTotal <= 3) pct = 0;
 	else if(baseTotal <= 5) pct = 0.10;
 	else if(baseTotal <= 7.5) pct = 0.15;
-	else if(baseTotal <= 10) pct = 0.10;
-	else if(baseTotal <= 15) pct = 0.10;
-	else if(baseTotal <= 20) pct = 0.08;
-	else if(baseTotal <= 25) pct = 0.08;
-	else pct = 0.06; // >25€
+	else if(baseTotal <= 10) pct = 0.25;
+	else if(baseTotal <= 15) pct = 0.30;
+	else if(baseTotal <= 20) pct = 0.33;
+	else if(baseTotal <= 25) pct = 0.37;
+	else pct = 0.40; // >25€
 
 
   // Totale finale
@@ -212,6 +212,8 @@ function calc(){
     // errore file cliente → costo pieno
   }
 
+	const margin = total - (material + machine)
+
   el("total").textContent = "Totale: " + euro(total);
 
   el("breakdown").textContent =
@@ -220,9 +222,10 @@ function calc(){
 // Tempo lavoro: ${euro(labor)}
 // Totale base: ${euro(baseTotal)}
 // Percentuale margine applicata: ${Math.round(pct*100)}%
-// Totale finale: ${euro(total)}`;
-	  `Materiale: ${euro(material)}
-	  Totale finale: ${euro(total)}`;
+// Totale finale: ${euro(total)}
+// Margine guadagno: ${euro(margin)}`;
+  	`Materiale: ${euro(material)}
+	Totale finale: ${euro(total)}`;
 }
 
 el("mode").addEventListener("change", updateRate);
