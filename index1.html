@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preventivo Stampa 3D — Bambu Lab H2C</title>
+
+<style>
+:root{
+  --bg:#0f172a;
+  --card:#111827;
+  --border:#1f2937;
+  --muted:#9ca3af;
+  --accent:#22c55e;
+  --danger:#ef4444;
+  --primary:#60a5fa;
+}
+body{
+  margin:0;
+  background:var(--bg);
+  color:#fff;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+}
+.wrap{max-width:900px;margin:2rem auto;padding:0 1rem}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:1.2rem}
+h1{margin:0 0 1rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:700px){.grid{grid-template-columns:1fr}}
+label{display:block;margin-top:.6rem}
+input,select{
+  width:100%;
+  padding:.55rem;
+  margin-top:.25rem;
+  background:#0b1220;
+  color:#fff;
+  border:1px solid var(--border);
+  border-radius:8px;
+}
+.btn{
+  padding:.6rem .9rem;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#0b1220;
+  color:#fff;
+  cursor:pointer;
+}
+.btn.primary{background:var(--primary);color:#001c32;border:none;font-weight:700}
+.actions{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem}
+.total{font-size:1.3rem;font-weight:800;margin-top:1rem}
+.break{background:#0b1220;border:1px solid var(--border);border-radius:10px;padding:.8rem;margin-top:.8rem;white-space:pre-wrap}
+.muted{color:var(--muted);font-size:.9rem}
+.hr{height:1px;background:var(--border);margin:1rem 0}
+.footer{font-size:.85rem;color:var(--muted);margin-top:1rem}
+.bad{color:var(--danger);font-weight:600}
+.ok{color:var(--accent);font-weight:600}
+
+@media print{
+  .actions,.footer{display:none}
+  body{background:#fff;color:#000}
+  .card,.break{border-color:#ccc;background:#fff}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+<h1>Preventivo Stampa 3D — Bambu Lab H2C</h1>
+
+<div class="card">
+
+<div class="grid">
+  <div>
+    <label>Caso</label>
+    <select id="case">
+      <option value="A">🟢 A — Vendita</option>
+      <option value="B">🔵 B — Regali / Uso personale</option>
+    </select>
+  </div>
+  <div>
+    <label>Modalità macchina</label>
+    <select id="mode">
+      <option value="hobby">Hobby (0,20 €/h)</option>
+      <option value="pro">Commerciale (0,75 €/h)</option>
+    </select>
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <label>Grammi materiale</label>
+    <input id="grams" type="number" min="0" value="50">
+  </div>
+  <div>
+    <label>Prezzo bobina €/kg</label>
+    <input id="ppg" type="number" value="25" disabled>
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <label>Ore</label>
+    <input id="hours" type="number" min="0" value="1">
+  </div>
+  <div>
+    <label>Minuti</label>
+    <input id="minutes" type="number" min="0" max="59" value="0">
+  </div>
+</div>
+
+<div class="grid">
+  <div>
+    <label>Tariffa macchina €/h</label>
+    <input id="rate" type="number" value="0.20" disabled>
+  </div>
+</div>
+
+<div id="sellBox">
+  <label>Prezzo di vendita (€) <span class="muted">(solo Caso A)</span></label>
+  <input id="sell" type="number" value="12.50">
+</div>
+
+<div id="personBox">
+  <label>Richiedente <span class="muted">(solo Caso B)</span></label>
+  <select id="person">
+    <option value="friend">Amico (+50%)</option>
+    <option value="stranger">Estraneo (+70%)</option>
+  </select>
+</div>
+
+<div>
+  <label>Fallimento</label>
+  <select id="failure">
+    <option value="none">Nessuno</option>
+    <option value="file">Errore file cliente</option>
+    <option value="technical">Problema tecnico mio</option>
+  </select>
+</div>
+
+<div class="actions">
+  <button class="btn primary" id="calc">Calcola</button>
+  <button class="btn" onclick="window.print()">Stampa / PDF</button>
+</div>
+
+<div class="total" id="total">Totale da darti: —</div>
+<div class="break" id="breakdown">Inserisci i dati e premi “Calcola”.</div>
+
+<div class="footer">
+CASO B: compenso calcolato solo come percentuale sui costi vivi, senza minimi fissi.
+</div>
+
+</div>
+  <div class="actions">
+      <button class="btn ghost" id="rulesBtn">📜 Mostra regolamento</button>
+    </div>
+    
+    <div id="rulesBox" class="break" style="display:none">
+      Prezzi per stampare pezzi 3D con la Bambulab H2C
+      
+      🟢 CASO A: VENDITA (Mercatini / Clienti)
+      Si usa quando l'oggetto viene venduto a terzi.
+      
+      • Materiale:
+        Grammi usati × prezzo di listino
+        (es. 0,03 €/g se la bobina costa 30 €/kg)
+      
+      • Costo macchina:
+        0,20 € per ogni ora di stampa
+      
+      • Calcolo guadagno:
+        Prezzo di vendita − (Materiale + Costo macchina) = Utile
+        A te spetta il 30% dell’utile
+      
+      Totale da darti:
+        Materiale + Costo macchina + tuo 30%
+      
+      🔵 CASO B: REGALI / USO PERSONALE
+      Si usa quando un amico vuole un oggetto per sé o da regalare.
+      
+      • Costi vivi:
+        Materiale a prezzo di listino
+        + 0,20 € per ogni ora di stampa
+      
+      • Tuo fisso:
+        – Stampe “flash”: 1,00 €
+        – Fino a 5 ore: 2,00 €
+        – Ogni 5 ore successive: +1,00 €
+      
+      Totale da darti:
+        Costi vivi + tuo fisso
+      
+      💡 NOTE
+      • Il materiale si paga sempre a prezzo di listino.
+      • Tariffa commerciale: 0,75 €/h.
+      • Fallimenti:
+        – Errore file → costo pieno
+        – Problema tecnico tuo → 25% sul margine
+    </div>
+</div>
+
+<script>
+const el = id => document.getElementById(id);
+const euro = v => "€ " + v.toFixed(2);
+
+function updateRate(){
+  el("rate").value = el("mode").value === "pro" ? 0.75 : 0.20;
+}
+function toggle(){
+  const isA = el("case").value === "A";
+  el("sellBox").style.display = isA ? "block" : "none";
+  el("personBox").style.display = isA ? "none" : "block";
+}
+
+function calc(){
+  const grams = +el("grams").value;
+  const ppg = +el("ppg").value / 1000;
+  const hours = +el("hours").value + (+el("minutes").value / 60);
+  const rate = +el("rate").value;
+  const sell = +el("sell").value;
+
+  const material = grams * ppg;
+  const machine = hours * rate;
+  const base = material + machine;
+
+  let total = 0;
+  let out = {};
+
+  if(el("case").value === "A"){
+    const profit = sell - base;
+    const pct = el("failure").value === "technical" ? 0.25 : 0.30;
+    const share = Math.max(0, profit * pct);
+    total = base + share;
+
+    out = {
+      "Materiale": euro(material),
+      "Costo macchina": euro(machine),
+      "Costo base": euro(base),
+      "Prezzo vendita": euro(sell),
+      "Utile": euro(profit),
+      "Quota Emanuele": (pct*100)+"%",
+      "Guadagno": euro(share),
+      "Totale": euro(total)
+    };
+  } else {
+    const pct = el("person").value === "friend" ? 0.50 : 0.70;
+    const fee = base * pct;
+    total = base + fee;
+
+    out = {
+      "Materiale": euro(material),
+      "Costo macchina": euro(machine),
+      "Costi vivi": euro(base),
+      "Compenso servizio": (pct*100)+"%",
+      "Compenso": euro(fee),
+      "Totale": euro(total)
+    };
+  }
+
+  el("total").textContent = "Totale da darti: " + euro(total);
+  el("breakdown").textContent =
+    Object.entries(out).map(([k,v])=>`${k}: ${v}`).join("\n");
+}
+
+["case","mode"].forEach(id=>el(id).addEventListener("change",()=>{updateRate();toggle();}));
+el("calc").addEventListener("click",calc);
+
+updateRate();
+toggle();
+  const rulesBtn = document.getElementById('rulesBtn');
+    const rulesBox = document.getElementById('rulesBox');
+    
+    rulesBtn.addEventListener('click', () => {
+      const open = rulesBox.style.display === 'block';
+      rulesBox.style.display = open ? 'none' : 'block';
+      rulesBtn.textContent = open
+        ? '📜 Mostra regolamento'
+        : '❌ Nascondi regolamento';
+    });
+</script>
+</body>
+</html>
