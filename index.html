@@ -394,7 +394,8 @@
       els.mode.value = 'hobby';
       els.grams.value = 50;
       els.ppg.value = 25.00;
-      els.hours.value = 3;
+      els.hours.value = 1;
+      els.minutes.value = 0;
       els.rate.value = 0.20;
       els.sell.value = 12.50;
       els.failure.value = 'none';
@@ -410,7 +411,7 @@
     // Eventi
     els.mode.addEventListener('change', applyModeRate);
     els.cas.addEventListener('change', () => { toggleCaseFields(); calc(); });
-    ['grams','ppg','hours','rate','sell','failure','flash'].forEach(id=>{
+    ['grams','ppg','hours','minutes','rate','sell','failure','flash'].forEach(id=>{
       els[id].addEventListener('input', () => { /* calcolo live opzionale */ });
       els[id].addEventListener('change', calc);
     });
