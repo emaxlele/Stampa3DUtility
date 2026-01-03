@@ -215,12 +215,14 @@ function calc(){
   el("total").textContent = "Totale: " + euro(total);
 
   el("breakdown").textContent =
-    `Materiale: ${euro(material)}
-Usura macchina: ${euro(machine)}
-Tempo lavoro: ${euro(labor)}
-Totale base: ${euro(baseTotal)}
-Percentuale margine applicata: ${Math.round(pct*100)}%
-Totale finale: ${euro(total)}`;
+//     `Materiale: ${euro(material)}
+// Usura macchina: ${euro(machine)}
+// Tempo lavoro: ${euro(labor)}
+// Totale base: ${euro(baseTotal)}
+// Percentuale margine applicata: ${Math.round(pct*100)}%
+// Totale finale: ${euro(total)}`;
+	  `Materiale: ${euro(material)}
+	  Totale finale: ${euro(total)}`;
 }
 
 el("mode").addEventListener("change", updateRate);
