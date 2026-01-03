@@ -76,8 +76,8 @@
         </div>
         <div>
           <label>Prezzo per grammo (€)</label>
-          <input id="ppg" type="number" min="0" step="0.001" value="0.03">
-          <div class="muted">Es.: 30€ per 1kg → 0,03 €/g</div>
+          <input id="ppg" type="number" min="0" step="0.50" value="25.00" disable="true">
+          <div class="muted">Es.: 25€ per 1kg → 25,00 €/kg</div>
         </div>
       </div>
 
@@ -88,7 +88,7 @@
         </div>
         <div>
           <label>Tariffa macchina €/h</label>
-          <input id="rate" type="number" min="0" step="0.01" value="0.20">
+          <input id="rate" type="number" min="0" step="0.01" value="0.20" disable="true">
           <div class="muted">Si aggiorna automaticamente con la modalità macchina</div>
         </div>
       </div>
@@ -104,7 +104,7 @@
           <select id="failure">
             <option value="none">Nessuno</option>
             <option value="file">Errore file del cliente</option>
-            <option value="technical">Problema tecnico mio</option>
+            <option value="technical">Problema tecnico stampante</option>
           </select>
         </div>
         <div id="flashBox">
@@ -137,7 +137,7 @@
       <div class="break" id="breakdown">Inserisci i dati e premi “Calcola”.</div>
 
       <div class="footer">
-        Suggerimenti: imposta <b>0,03 €/g</b> per bobine da 30€/kg, usa <b>0,20 €/h</b> per hobby e
+        Suggerimenti: imposta <b>25,00 €/kg</b> per bobine da 25€/kg, usa <b>0,20 €/h</b> per hobby e
         <b>0,75 €/h</b> per attività continuativa. In caso di fallimento tecnico tuo, nel Caso A
         applichi il <b>25%</b> sul margine, altrimenti <b>30%</b>.
       </div>
@@ -238,7 +238,7 @@
 
       const cas = els.cas.value;
       const grams = parseFloat(els.grams.value);
-      const ppg = parseFloat(els.ppg.value);
+      const ppg = parseFloat(els.ppg.value) / 1000;
       const hours = parseFloat(els.hours.value);
       const rate = parseFloat(els.rate.value);
       const sell = parseFloat(els.sell.value || '0');
@@ -329,7 +329,7 @@
       els.cas.value = 'A';
       els.mode.value = 'hobby';
       els.grams.value = 50;
-      els.ppg.value = 0.03;
+      els.ppg.value = 25.00;
       els.hours.value = 3;
       els.rate.value = 0.20;
       els.sell.value = 12.50;
