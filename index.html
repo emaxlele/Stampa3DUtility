@@ -246,7 +246,9 @@
       const cas = els.cas.value;
       const grams = parseFloat(els.grams.value);
       const ppg = parseFloat(els.ppg.value) / 1000;
-      const hours = parseFloat(els.hours.value);
+      //const hours = parseFloat(els.hours.value);
+      const h = parseInt(els.hours.value || '0', 10);
+      const m = parseInt(els.minutes.value || '0', 10);
       const rate = parseFloat(els.rate.value);
       const sell = parseFloat(els.sell.value || '0');
       const failure = els.failure.value;
@@ -255,8 +257,6 @@
       // Costi base
       const materialCost = grams * ppg;
 
-      const h = parseInt(els.hours.value || '0', 10);
-      const m = parseInt(els.minutes.value || '0', 10);
       const hours = h + (m / 60);
       const machineCost = hours * rate;
 
