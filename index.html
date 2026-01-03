@@ -11,8 +11,6 @@
   --card:#111827;
   --border:#1f2937;
   --muted:#9ca3af;
-  --accent:#22c55e;
-  --danger:#ef4444;
   --primary:#60a5fa;
 }
 body{
@@ -47,12 +45,15 @@ input,select{
 .btn.primary{background:var(--primary);color:#001c32;border:none;font-weight:700}
 .actions{display:flex;gap:.7rem;flex-wrap:wrap;margin-top:1rem}
 .total{font-size:1.3rem;font-weight:800;margin-top:1rem}
-.break{background:#0b1220;border:1px solid var(--border);border-radius:10px;padding:.8rem;margin-top:.8rem;white-space:pre-wrap}
-.muted{color:var(--muted);font-size:.9rem}
-.hr{height:1px;background:var(--border);margin:1rem 0}
-.footer{font-size:.85rem;color:var(--muted);margin-top:1rem}
-.bad{color:var(--danger);font-weight:600}
-.ok{color:var(--accent);font-weight:600}
+.break{
+  background:#0b1220;
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:.8rem;
+  margin-top:.8rem;
+  white-space:pre-wrap;
+}
+.footer{font-size:.85rem;color:#9ca3af;margin-top:1rem}
 
 @media print{
   .actions,.footer{display:none}
@@ -70,18 +71,15 @@ input,select{
 
 <div class="grid">
   <div>
-    <label>Caso</label>
-    <select id="case">
-      <option value="A">🟢 A — Vendita</option>
-      <option value="B">🔵 B — Regali / Uso personale</option>
+    <label>Tipo utilizzo</label>
+    <select id="mode">
+      <option value="hobby">Uso personale / hobby</option>
+      <option value="pro">Vendita / commerciale</option>
     </select>
   </div>
   <div>
-    <label>Modalità macchina</label>
-    <select id="mode">
-      <option value="hobby">Hobby (0,20 €/h)</option>
-      <option value="pro">Commerciale (0,75 €/h)</option>
-    </select>
+    <label>Tariffa oraria €/h</label>
+    <input id="rate" type="number" disabled>
   </div>
 </div>
 
@@ -92,7 +90,7 @@ input,select{
   </div>
   <div>
     <label>Prezzo bobina €/kg</label>
-    <input id="ppg" type="number" value="25" disabled>
+    <input id="ppg" type="number" value="25">
   </div>
 </div>
 
@@ -107,32 +105,12 @@ input,select{
   </div>
 </div>
 
-<div class="grid">
-  <div>
-    <label>Tariffa macchina €/h</label>
-    <input id="rate" type="number" value="0.20" disabled>
-  </div>
-</div>
-
-<div id="sellBox">
-  <label>Prezzo di vendita (€) <span class="muted">(solo Caso A)</span></label>
-  <input id="sell" type="number" value="12.50">
-</div>
-
-<div id="personBox">
-  <label>Richiedente <span class="muted">(solo Caso B)</span></label>
-  <select id="person">
-    <option value="friend">Amico (+50%)</option>
-    <option value="stranger">Estraneo (+70%)</option>
-  </select>
-</div>
-
 <div>
-  <label>Fallimento</label>
+  <label>Esito stampa</label>
   <select id="failure">
-    <option value="none">Nessuno</option>
-    <option value="file">Errore file cliente</option>
-    <option value="technical">Problema tecnico mio</option>
+    <option value="none">Stampa riuscita</option>
+    <option value="file">Errore file fornito</option>
+    <option value="technical">Problema tecnico</option>
   </select>
 </div>
 
@@ -141,14 +119,27 @@ input,select{
   <button class="btn" onclick="window.print()">Stampa / PDF</button>
 </div>
 
-<div class="total" id="total">Totale da darti: —</div>
+<div class="total" id="total">Totale: —</div>
 <div class="break" id="breakdown">Inserisci i dati e premi “Calcola”.</div>
 
-<div class="footer">
-CASO B: compenso calcolato solo come percentuale sui costi vivi, senza minimi fissi.
 </div>
 
+<div class="actions">
+  <button class="btn" id="rulesBtn">📜 Regolamento</button>
 </div>
+
+<div id="rulesBox" class="break" style="display:none">
+REGOLAMENTO DI UTILIZZO – SERVIZIO DI STAMPA 3D
+
+Il prezzo è calcolato automaticamente in base a materiale, tempo di stampa e avviamento della lavorazione.
+Il prezzo visualizzato rappresenta il corrispettivo finale del servizio.
+
+In caso di esito negativo dovuto a errori nel file fornito, i costi già sostenuti restano validi.
+In caso di problemi tecnici imputabili al servizio, la stampa viene ripetuta senza costi aggiuntivi.
+
+L’utilizzo del tool implica l’accettazione del presente regolamento.
+</div>
+
 </div>
 
 <script>
@@ -156,12 +147,7 @@ const el = id => document.getElementById(id);
 const euro = v => "€ " + v.toFixed(2);
 
 function updateRate(){
-  el("rate").value = el("mode").value === "pro" ? 0.75 : 0.20;
-}
-function toggle(){
-  const isA = el("case").value === "A";
-  el("sellBox").style.display = isA ? "block" : "none";
-  el("personBox").style.display = isA ? "none" : "block";
+  el("rate").value = el("mode").value === "pro" ? 1.25 : 0.75;
 }
 
 function calc(){
@@ -169,56 +155,36 @@ function calc(){
   const ppg = +el("ppg").value / 1000;
   const hours = +el("hours").value + (+el("minutes").value / 60);
   const rate = +el("rate").value;
-  const sell = +el("sell").value;
 
   const material = grams * ppg;
-  const machine = hours * rate;
-  const base = material + machine;
+  const timeCost = hours * rate;
+  let total = material + timeCost;
 
-  let total = 0;
-  let out = {};
+  const min = el("mode").value === "pro" ? 8 : 5;
+  const appliedMin = total < min ? min : total;
 
-  if(el("case").value === "A"){
-    const profit = sell - base;
-    const pct = el("failure").value === "technical" ? 0.25 : 0.30;
-    const share = Math.max(0, profit * pct);
-    total = base + share;
+  el("total").textContent = "Totale: " + euro(appliedMin);
 
-    out = {
-      "Materiale": euro(material),
-      "Costo macchina": euro(machine),
-      "Costo base": euro(base),
-      "Prezzo vendita": euro(sell),
-      "Utile": euro(profit),
-      "Quota Emanuele": (pct*100)+"%",
-      "Guadagno": euro(share),
-      "Totale": euro(total)
-    };
-  } else {
-    const pct = el("person").value === "friend" ? 0.50 : 0.70;
-    const fee = base * pct;
-    total = base + fee;
-
-    out = {
-      "Materiale": euro(material),
-      "Costo macchina": euro(machine),
-      "Costi vivi": euro(base),
-      "Compenso servizio": (pct*100)+"%",
-      "Compenso": euro(fee),
-      "Totale": euro(total)
-    };
-  }
-
-  el("total").textContent = "Totale da darti: " + euro(total);
   el("breakdown").textContent =
-    Object.entries(out).map(([k,v])=>`${k}: ${v}`).join("\n");
+    `Materiale: ${euro(material)}
+Tempo di stampa: ${euro(timeCost)}
+Totale calcolato: ${euro(total)}
+Minimo applicato: ${total < min ? euro(min) : "—"}
+Totale finale: ${euro(appliedMin)}`;
 }
 
-["case","mode"].forEach(id=>el(id).addEventListener("change",()=>{updateRate();toggle();}));
-el("calc").addEventListener("click",calc);
+el("mode").addEventListener("change", updateRate);
+el("calc").addEventListener("click", calc);
 
 updateRate();
-toggle();
+
+const rulesBtn = el("rulesBtn");
+const rulesBox = el("rulesBox");
+rulesBtn.addEventListener("click", () => {
+  const open = rulesBox.style.display === "block";
+  rulesBox.style.display = open ? "none" : "block";
+});
 </script>
+
 </body>
 </html>
