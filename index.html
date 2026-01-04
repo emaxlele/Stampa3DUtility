@@ -99,15 +99,6 @@ input,select{
   </div>
 </div>
 
-<div>
-  <label>Esito stampa</label>
-  <select id="failure">
-    <option value="none">Stampa riuscita</option>
-    <option value="file">Errore file fornito</option>
-    <option value="technical">Problema tecnico</option>
-  </select>
-</div>
-
 <div class="actions">
   <button class="btn primary" id="calc">Calcola</button>
   <button class="btn" onclick="window.print()">Stampa / PDF</button>
@@ -122,15 +113,17 @@ input,select{
 </div>
 
 <div id="rulesBox" class="break" style="display:none">
-REGOLAMENTO DI UTILIZZO – SERVIZIO DI STAMPA 3D
+<strong>REGOLAMENTO DI UTILIZZO – SERVIZIO DI STAMPA 3D</strong>
 
-Il prezzo è calcolato automaticamente in base a materiale, tempo di stampa e avviamento della lavorazione.
-Il prezzo visualizzato rappresenta il corrispettivo finale del servizio.
+• Il prezzo è calcolato automaticamente in base a materiale, tempo e avviamento.
+• In caso di errori nel file fornito, i costi restano validi al 100%.
+• In caso di problemi tecnici del servizio, la stampa viene ripetuta gratis.
 
-In caso di esito negativo dovuto a errori nel file fornito, i costi già sostenuti restano validi.
-In caso di problemi tecnici imputabili al servizio, la stampa viene ripetuta senza costi aggiuntivi.
+⚠️ <strong>ATTENZIONE:</strong> Se la stampa fallisce per difetti del file o impostazioni errate richieste, il servizio viene addebitato interamente (risorse già impiegate).
 
-L’utilizzo del tool implica l’accettazione del presente regolamento.
+• Il calcolo si riferisce a file forniti dall'utente. Progettazione CAD o ottimizzazioni sono valutate separatamente.
+
+<em>L’utilizzo del tool implica l’accettazione del presente regolamento.</em>
 </div>
 
 </div>
@@ -204,14 +197,6 @@ function calc(){
 
   // Totale finale
   let total = baseTotal * (1 + pct);
-
-  // Gestione esito stampa
-  const failure = el("failure").value;
-  if(failure === "technical"){
-    total = 0; // problema tecnico → gratis
-  } else if(failure === "file"){
-    // errore file cliente → costo pieno
-  }
 
 	const margin = total - (material + machine)
 
