@@ -69,18 +69,12 @@ input,select{
 
 <div class="card">
 
-<div class="grid">
-  <div>
-    <label>Tipo utilizzo</label>
-    <select id="mode">
-      <option value="hobby">Uso personale / hobby</option>
-      <option value="pro">Vendita / commerciale</option>
-    </select>
-  </div>
-  <div>
-    <label>Tariffa base €/h</label>
-    <input id="rate" type="number" disabled>
-  </div>
+<div>
+	<label>Tipo utilizzo</label>
+	<select id="mode">
+	  <option value="hobby">Uso personale / hobby</option>
+	  <option value="pro">Vendita / commerciale</option>
+	</select>
 </div>
 
 <div class="grid">
@@ -120,7 +114,6 @@ input,select{
 </div>
 
 <div class="total" id="total">Totale: —</div>
-<div class="break" id="breakdown">Inserisci i dati e premi “Calcola”.</div>
 
 </div>
 
@@ -148,10 +141,13 @@ const euro = v => "€ " + v.toFixed(2);
 
 function updateRate(){
   // Tariffa base 1 €/h + 0,5 €/h extra (mostriamo solo base)
-  el("rate").value = el("mode").value === "pro" ? 1 : 1;
+  //el("rate").value = el("mode").value === "pro" ? 1 : 1;
+  el("mode").value === "pro" ? 1 : 1;
 }
 
 function calc(){
+	const isHobby = el("mode").value === "hobby";
+
 	const grams = +el("grams").value;
 	const ppg = +el("ppg").value / 1000;
 
@@ -165,29 +161,31 @@ function calc(){
 	const material = grams * ppg;
 
 	// Usura macchina
+	const princeMachine = isHobby ? 0.30 : 0.75
 	let machine;
 	if (hours <= 1) {
-	  machine = 0.30; // costo fisso per la prima ora
+	  machine = princeMachine; // costo fisso per la prima ora
 	} else {
-	  machine = 0.30 + (hours - 1) * 0.30; // aggiungi 0.30 per ogni ora extra/frazione
+	  machine = princeMachine + (hours - 1) * (princeMachine + 0); // aggiungi 0.30 per ogni ora extra/frazione
 	}
 
 	// Tariffa lavoro
+	const princeLabore = isHobby ? 0.35 : 0.60
 	let labor;
 	if (hours <= 1) {
 	  labor = 1; // costo fisso per la prima ora
 	} else {
-	  labor = 1 + (hours - 1) * 0.35; // 0,35 euro per ogni ora extra/frazione
+	  labor = 1 + (hours - 1) * (princeLabore + 0); // 0,35 euro per ogni ora extra/frazione
 	}
 
-	console.log("Materiale:", material.toFixed(2), "€");
-	console.log("Macchina:", machine.toFixed(2), "€");
-	console.log("Lavoro:", labor.toFixed(2), "€");
+	//console.log("Materiale:", material.toFixed(2), "€");
+	//console.log("Macchina:", machine.toFixed(2), "€");
+	//console.log("Lavoro:", labor.toFixed(2), "€");
 
 
   // Base totale
   const baseTotal = material + machine + labor;
-	console.log("Totale:", baseTotal.toFixed(2), "€");
+	//console.log("Totale:", baseTotal.toFixed(2), "€");
 
   // Percentuale margine variabile
 	let pct = 0.35; // default
@@ -215,17 +213,19 @@ function calc(){
 	const margin = total - (material + machine)
 
   el("total").textContent = "Totale: " + euro(total);
+  
+  	console.debug("Totale:", baseTotal.toFixed(2), "€");
 
-  el("breakdown").textContent =
-//     `Materiale: ${euro(material)}
-// Usura macchina: ${euro(machine)}
-// Tempo lavoro: ${euro(labor)}
-// Totale base: ${euro(baseTotal)}
-// Percentuale margine applicata: ${Math.round(pct*100)}%
-// Totale finale: ${euro(total)}
-// Margine guadagno: ${euro(margin)}`;
-  	`Materiale: ${euro(material)}
-	Totale finale: ${euro(total)}`;
+    console.debug(`
+	Materiale: ${euro(material)}
+	Usura macchina: ${euro(machine)}
+	Tempo lavoro: ${euro(labor)}
+	Totale base: ${euro(baseTotal)}
+	Percentuale margine applicata: ${Math.round(pct*100)}%
+	Margine guadagno: ${euro(margin)}`);
+	  	
+	console.debug("------------------------------------------");
+
 }
 
 el("mode").addEventListener("change", updateRate);
