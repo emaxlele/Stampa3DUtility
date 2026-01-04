@@ -174,7 +174,7 @@ function calc(){
 	let labor;
 	if (hours <= 1) {
 	 // labor = 1; // costo fisso per la prima ora
-		labor = Math.max((hours - 1) * (princeLabore + 0), 50); //se il risultato è minore di 50, viene restituito 50; altrimenti resta il valore calcolato.
+		labor = Math.max((hours - 1) * (princeLabore + 0), 0.50); //se il risultato è minore di 50, viene restituito 50; altrimenti resta il valore calcolato.
 	} else {
 	  labor = 1 + (hours - 1) * (princeLabore + 0); // 0,35 euro per ogni ora extra/frazione
 	}
