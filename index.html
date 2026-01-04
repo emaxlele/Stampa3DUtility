@@ -133,12 +133,6 @@ input,select{
 const el = id => document.getElementById(id);
 const euro = v => "€ " + v.toFixed(2);
 
-function updateRate(){
-  // Tariffa base 1 €/h + 0,5 €/h extra (mostriamo solo base)
-  //el("rate").value = el("mode").value === "pro" ? 1 : 1;
-  el("mode").value === "pro" ? 1 : 1;
-}
-
 function calc(){
 	const isHobby = el("mode").value === "hobby";
 
@@ -217,7 +211,6 @@ function calc(){
 
 }
 
-el("mode").addEventListener("change", updateRate);
 el("calc").addEventListener("click", calc);
 
 updateRate();
