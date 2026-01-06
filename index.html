@@ -179,15 +179,21 @@ function calc(){
 	//console.log("Totale:", baseTotal.toFixed(2), "€");
 
   // Percentuale margine variabile
-	let pct = 0.35; // default
+	let pct = 1.00; // default
 	if(baseTotal <= 3) pct = 0.05;
 	else if(baseTotal <= 5) pct = 0.10;
 	else if(baseTotal <= 7.5) pct = 0.10;
 	else if(baseTotal <= 10) pct = 0.10;
-	else if(baseTotal <= 15) pct = 0.15;
-	else if(baseTotal <= 20) pct = 0.25;
-	else if(baseTotal <= 25) pct = 0.40;
-	else pct = 0.45; // >25€
+	else if(baseTotal <= 15) pct = 0.13;
+	else if(baseTotal <= 20) pct = 0.15;
+	else if(baseTotal <= 25) pct = 0.19;
+	else if(baseTotal <= 30) pct = 0.25;
+	else if(baseTotal <= 35) pct = 0.30;
+	else if(baseTotal <= 40) pct = 0.35;
+	else if(baseTotal <= 45) pct = 0.40;
+	else {
+		pct = baseTotal / 100; // >50€
+	}
 
 
   // Totale finale
